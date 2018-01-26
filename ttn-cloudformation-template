@@ -1,0 +1,241 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Description: "Elastic Beanstalk environment name"
+    Default: ""
+    ConstraintDescription: "required."
+  DiscoveryServer:
+    Type: String
+    Description: "Discovery Server address"
+    Default: "discovery.thethings.network:1900"
+  AccountServer:
+    Type: String
+    Description: "Account Server address"
+    Default: "https://account.thethingsnetwork.org"
+  AppID:
+    Type: String
+    Description: "App ID"
+    Default: ""
+    ConstraintDescription: "required."
+  AppAccessKey:
+    Type: String
+    Description: "App Access Key"
+    Default: ""
+    ConstraintDescription: "required."
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: "Name of an existing EC2 KeyPair to enable SSH access to the instance"
+    ConstraintDescription: "must be the name of an existing EC2 KeyPair."
+  InstanceType:
+    Type: String
+    Description: "EC2 instance type"
+    Default: "t2.micro"
+    AllowedValues:
+      - "t2.micro"
+      - "t2.small"
+      - "t2.medium"
+      - "t2.large"
+      - "t2.xlarge"
+      - "t2.2xlarge"
+    ConstraintDescription: "must be a valid EC2 instance type."
+  ThingSyncEnabled:
+    Type: String
+    Description: "Enables AWS IoT things synchronization and thing shadow deltas"
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+    ConstraintDescription: "must be a valid boolean."
+  ThingSyncInterval:
+    Type: String
+    Description: "Interval for AWS IoT things synchronization"
+    Default: "10m"
+    AllowedValues:
+      - "30s"
+      - "1m"
+      - "10m"
+      - "30m"
+      - "1h"
+    ConstraintDescription: "must be a valid interval."
+  ThingShadowDeltaFPort:
+    Type: Number
+    Description: "LoRaWAN FPort for thing shadow delta downlink messages. Requires AWS IoT things synchronization"
+    MinValue: 1
+    MaxValue: 225
+    Default: 1
+    ConstraintDescription: "must be a value between 1 and 225."
+  ThingTypeName:
+    Type: String
+    Description: "AWS IoT thing type name. Requires AWS IoT things synchronization"
+    Default: lorawan
+
+Mappings:
+  SyncIntervalMap:
+    "30s":
+      Ticks: 3000000000
+    "1m":
+      Ticks: 6000000000
+    "10m":
+      Ticks: 60000000000
+    "30m":
+      Ticks: 180000000000
+    "1h":
+      Ticks: 360000000000
+
+Resources:
+  TTNIntegration:
+    Type: "AWS::ElasticBeanstalk::Application"
+    Properties:
+      Description: "The Things Network Integration for AWS IoT"
+
+  Production:
+    Type: "AWS::ElasticBeanstalk::ApplicationVersion"
+    Properties:
+      ApplicationName:
+        Ref: TTNIntegration
+      Description: "Version v2.0.0"
+      SourceBundle:
+        S3Bucket:
+          Fn::Join:
+            - "-"
+            - - "thethingsnetwork"
+              - Ref: AWS::Region
+        S3Key:
+          Fn::Join:
+            - ""
+            - - "builds/integration-aws/dist/integration-aws-"
+              - "v2.0.0"
+              - ".zip"
+
+  TTNConfigurationTemplate:
+    Type: "AWS::ElasticBeanstalk::ConfigurationTemplate"
+    Properties:
+      ApplicationName:
+        Ref: TTNIntegration
+      Description: "The Things Network Integration Configuration Template"
+      OptionSettings:
+      - Namespace: "aws:elasticbeanstalk:environment"
+        OptionName: "EnvironmentType"
+        Value: "SingleInstance"
+      SolutionStackName: "64bit Amazon Linux 2017.09 v2.7.5 running Go 1.9"
+
+  TTNInstanceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
+        - "arn:aws:iam::aws:policy/AWSIoTFullAccess"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Effect: "Allow"
+          Principal:
+            Service:
+            - "ec2.amazonaws.com"
+          Action:
+          - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: TTNPutMetrics
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "cloudwatch:PutMetricData"
+                Resource:
+                  - "*"
+
+  TTNInstanceProfile:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        - Ref: TTNInstanceRole
+
+  TTNIoTPolicy:
+    Type: "AWS::IoT::Policy"
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Action:
+              - "iot:Connect"
+              - "iot:Publish"
+              - "iot:Subscribe"
+              - "iot:Receive"
+              - "iot:UpdateThingShadow"
+              - "iot:GetThingShadow"
+            Resource:
+              - "*"
+
+  TTNIntegrationEnvironment:
+    Type: "AWS::ElasticBeanstalk::Environment"
+    Properties:
+      ApplicationName:
+        Ref: TTNIntegration
+      EnvironmentName:
+        Ref: EnvironmentName
+      Description: "The Things Network Integration Environment"
+      TemplateName:
+        Ref: TTNConfigurationTemplate
+      VersionLabel:
+        Ref: Production
+      OptionSettings:
+        - Namespace: "aws:autoscaling:launchconfiguration"
+          OptionName: "IamInstanceProfile"
+          Value:
+            Ref: TTNInstanceProfile
+        - Namespace: "aws:autoscaling:launchconfiguration"
+          OptionName: "EC2KeyName"
+          Value:
+            Ref: KeyName
+        - Namespace: "aws:autoscaling:launchconfiguration"
+          OptionName: "InstanceType"
+          Value:
+            Ref: InstanceType
+        - Namespace: "aws:elasticbeanstalk:application:environment"
+          OptionName: "TTN_DISCOVERY_SERVER"
+          Value:
+            Ref: DiscoveryServer
+        - Namespace: "aws:elasticbeanstalk:application:environment"
+          OptionName: "TTN_ACCOUNT_SERVER"
+          Value:
+            Ref: AccountServer
+        - Namespace: "aws:elasticbeanstalk:application:environment"
+          OptionName: "TTN_APP_ID"
+          Value:
+            Ref: AppID
+        - Namespace: "aws:elasticbeanstalk:application:environment"
+          OptionName: "TTN_APP_ACCESS_KEY"
+          Value:
+            Ref: AppAccessKey
+        - Namespace: "aws:elasticbeanstalk:application:environment"
+          OptionName: "AWS_REGION"
+          Value:
+            Ref: AWS::Region
+        - Namespace: "aws:elasticbeanstalk:application:environment"
+          OptionName: "AWS_POLICY"
+          Value:
+            Ref: TTNIoTPolicy
+        - Namespace: "aws:elasticbeanstalk:application:environment"
+          OptionName: "SYNC_DEVICES"
+          Value:
+            Ref: ThingSyncEnabled
+        - Namespace: "aws:elasticbeanstalk:application:environment"
+          OptionName: "SYNC_DEVICES_INTERVAL"
+          Value: !FindInMap [SyncIntervalMap, !Ref "ThingSyncInterval", "Ticks"]
+        - Namespace: "aws:elasticbeanstalk:application:environment"
+          OptionName: "TTN_SHADOW_DELTA_FPORT"
+          Value:
+            Ref: ThingShadowDeltaFPort
+        - Namespace: "aws:elasticbeanstalk:application:environment"
+          OptionName: "AWS_THING_TYPE"
+          Value:
+            Ref: ThingTypeName
