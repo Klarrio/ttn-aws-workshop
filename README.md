@@ -25,11 +25,6 @@ We will be using various code snippets during the workshop, which you can simply
 [Lambda test record](lambda-test-record.json): You can use this sample Kinesis record to test your "flatten json" lambda.  
 [Athena create table statement](athena-create-table.sql): We'll use this "create table" statement to create a table in Athena, which maps on the data we stored in S3.  
 
-Athena query statement: 
-```
-select from_iso8601_timestamp(time) as time, battery, light, temperature from ttn_iot_flat_data order by time asc;
-```
-
 ## Workshop log
 This log will guide you through the steps of the workshop.
 
@@ -50,6 +45,25 @@ published by your Things Node end up in AWS IoT.
 1.3 in the menu on the left, go to Test. Here we'll try to subscribe on the MQTT messages published by your TTN Node.  
 1.4 in the "subscription topic" field, enter `<ttn-app-name>/devices/<ttn-node-name>/up`, were you'll have to replace the placeholders with their actual values.  
 1.5 click on the "Subscribe to topic" button. When you interact with your Things Node (by moving with it, clicking the button, etc), you should see your messages in AWS IoT.
+
+### FOR THE DRY RUN WE REFER TO THE BELOW SECTION
+
+### 1. Create AWS EC2 Keypair
+### 2. Configure and Deploy AWS Cloudformation (based on the modified TTN Cloudformation template)
+### 3. Check via AWS Elastic BeanStalk that the TTN app is running
+### 4. Show via AWS Cloudwatch the TTN app statistics.
+### 5. Check via AWS IoT that a IoT Thing is created. Subscribe and check incoming published messages.
+### 6. Create AWS Kinesis Firehose Delivery Stream
+#### 6.1 Add Role based on "Basic Edge Lambda Permissions" template
+#### 6.2 Add lambda function to write modified and flattened json data to S3
+#### 6.3 Makesure that raw data is also send to S3
+### 7. Add Action to IoT Thing to send data to Kinesis.
+### 9. Athena
+#### 9.1 Create new table in default DB
+#### 9.2 Validate Table with * query
+### 10. QuickSight
+#### 10.1 Signup
+#### 10.2 Add Data Set
 
 ## SNS notification flow
 ### 1. Setup SNS
