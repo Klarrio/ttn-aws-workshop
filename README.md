@@ -7,8 +7,11 @@ During the workshop, we will use multiple AWS services and combine them in a dat
 - a flow which will store the messages into S3's object storage (after a small transformation) and make the data queryable via AWS Athena.
 ![architecture](/assets/workshop.png)
 
-### Components
-**The Things Network AWS Integration:**  We will use this integration as a bridge between The Things Network and AWS IoT. To set this up we'll follow the [quick start guide](https://www.thethingsnetwork.org/docs/applications/aws/quick-start.html) provided by The Things Network.  
+### AWS Services
+The following AWS services will be used during this workshop.
+![aws_services](/assets/ttn_aws_services.jpg)
+
+**The Things Network AWS Integration:**  We will use this integration as a bridge between The Things Network and AWS IoT. To set this up we'll follow the [quick start guide](https://www.thethingsnetwork.org/docs/applications/aws/quick-start.html) provided by The Things Network.
 **AWS IoT:** The IoT solution of AWS. This is were we'll see our devices and can subscribe/publish messages.  
 **AWS Lambda:** small code blocks or functions which act on or transform data, without having to manage servers.  
 **AWS SNS:** AWS simple notification service, which allows you to send notifications to a mobile device, e-mail account, http endpoint etc.  
