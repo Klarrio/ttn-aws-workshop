@@ -309,6 +309,7 @@ the Kinesis Firehose S3 buffer conditions).
 7. In the right panel in the code section type
 ```
 select * from ttn_iot_flat_data
+select * from ttn_iot_flat_data order by time
 ```
 8. Choose **Run Query**
 9. One should see in the **Results** tab a list of records corresponding the data set on S3
