@@ -230,7 +230,50 @@ which will be used via the bi tool `QuickSight`.
 ### 1. Create AWS Kinesis Firehose Delivery Stream
 1. Open the Amazon Kinesis console at https://console.aws.amazon.com/kinesis/
 `Note`: If you don't have a Kinesis configuration yet, choose **Get Started** to continue.
-2.
+2. Choose **Create delivery stream**
+3. **Delivery stream name** => `ttn-kinesis-delivery-stream`
+4. **Source** => `Direct PUT or other sources`
+5. Choose **Next**
+6. **Record transformation** => `Enabled`
+7. **Lambda function** choose **Create new**
+8. Choose **General Firehose Processing**
+9. **Name** => `ttn-lambda-flatten-json`
+10. **Role** choose **create new role from template** from the dropdown
+11. **Role name** => `ttn-lambda-flatten-json-role`
+12. **Policy templates** choose **Basic Edge Lambda permissions** from the dropdown
+13. The Lambda function code can't be edited at this moment so choose **Create function**
+14. Now your enter the main screen of your Lambda function. At the top you have the **Designer panel**, at the bottom the **Function code** panel.
+15. In the **Function code** panel in the code section, copy-paste the code from our [Lambda to flatten json](lambda-flatten-json-kinesis-records.js) code snippet.
+16. Choose **Save**
+17. Close the browser page of the lambda function
+18. Close the **Choose Lambda blueprint** popup box that is still opened in your **Kinesis Firehose** Console
+19. **Lambda function** => `ttn-lambda-flatten-json` from the dropdown.
+20. Choose **Next**
+21. **Select destination**
+22. **Destination** => `Amazon S3`
+21. **S3 bucket** choose **Create new**
+22. **S3 bucket name** => `ttn-workshop-data`
+23. Choose **Create S3 bucket**
+24. Notice that the create S3 bucket is automatically selected as the **S3 bucket**
+25. **Prefix** => `iot-to-bi/`
+`Note`: It is very important to add an ending **/**
+26. **Source record S3 backup** => `Enabled`. This is were you configure that the raw ingested data set should be stored on S3 as well.
+27. **Backup S3 bucket** choose **Create new**
+28. **S3 bucket name** => `ttn-workshop-raw-data`
+29. Choose **Create S3 bucket**
+30. Notice that the create S3 bucket is automatically selected as the **Backup S3 bucket**
+31. **Prefix** => keep the default (don't change)
+32. Choose **Next**
+33. S3 buffer conditions **Buffer size** => keep the default (don't change)
+34. S3 buffer conditions **Buffer interval** => `60` seconds
+35. S3 compression and encryption => keep the defaults (don't change)
+36. Error logging => keep the default (don't change)
+37. **IAM role** => `Create new, or Choose`
+38. Choose **Allow** (so keep the suggested IAM Role and Create a new Role Policy)
+39. Choose **Next**
+40. Choose **Create delivery stream**
+
+
 ### 2. Add Action to IoT Thing to Send Data to Kinesis.
 TBD
 ### 3. Athena
