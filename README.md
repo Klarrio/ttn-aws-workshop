@@ -218,6 +218,13 @@ As a trigger for this lambda, we'll use AWS IoT, so that it gets triggered on ev
 Now, when you move the Things Node, while keeping it concealed from any light, an email should drop in your inbox.
 
 ## Store, Query and Dashboard flow
+
+Within this flow we will illustrate how one can store all the received data coming from the ThingsNode to `S3` (both the raw data set and
+a flattend json with a subset of the raw data set). We make use of the `Kinesis` to compact the incomming data sets and to write
+them to `S3`, to modify the incoming raw data sets to a flattend json we will make use of a `Lambda` function. With the AWS service `Athena`
+we will create a table for the subset of the raw data on which query's can be performed on the flattend json data sets stored on `S3` and
+which will be used via the bi tool `QuickSight`.
+
 ### 1. Create AWS Kinesis Firehose Delivery Stream
 TBD
 ### 2. Add Action to IoT Thing to Send Data to Kinesis.
