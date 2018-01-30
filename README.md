@@ -273,9 +273,30 @@ which will be used via the bi tool `QuickSight`.
 39. Choose **Next**
 40. Choose **Create delivery stream**
 
-
 ### 2. Add Action to IoT Thing to Send Data to Kinesis.
-TBD
+
+1. Open AWS IoT in the AWS Management Console: https://console.aws.amazon.com/iot/home
+2. In the menu on the left, go to **Act**
+3. Choose **Create a rule**
+4. **Name** => `ttn_iot_to_kinesis`
+5. **Attribute** => `*` (So the Rule query statement becomes: SELECT * FROM ")
+6. **Topic filter** => `<ttn-app-name>/devices/<ttn-node-name>/up`
+7. **Condition** => keep the default (blanc)
+8. Choose **Add action**
+9. Choose **Send messages to an Amazon Kinesis Firehose stream**
+10. Choose **Configure action**
+11. **Stream name** => `ttn-kinesis-delivery-stream` from the dropdown
+12. **Separator** => `\n(newline)` from the dropdown
+13. **IAM role name** => choose **Create a new role**
+14. `ttn-iot-to-kinesis-role`
+15. Choose **Create a new role**
+16. **IAM role name** => choose `ttn-iot-to-kinesis-role` from the dropdown
+17. Choose **Add action**
+18. Choose **Create rule**
+
+From the moment one should see data being stored on S3. (This is done in badges as configured with
+the Kinesis Firehose S3 buffer conditions).
+
 ### 3. Athena
 TBD
 ### 4. QuickSight
