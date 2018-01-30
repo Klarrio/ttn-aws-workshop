@@ -5,4 +5,4 @@ CREATE EXTERNAL TABLE ttn_iot_flat_data (
     time timestamp)
 ROW FORMAT  serde 'org.apache.hive.hcatalog.data.JsonSerDe'
 with serdeproperties( 'ignore.malformed.json' = 'true')
-LOCATION 's3://ttn-workshop-<YOUR-UNIQUE-BUCKET-ID>/iot-to-bi-example/'
+LOCATION 's3://ttn-workshop-data-<unique-id>/iot-to-bi/'

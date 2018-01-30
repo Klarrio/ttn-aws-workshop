@@ -97,11 +97,11 @@ During this workshop there is no need to login to the `EC2 node` which is used t
 belonging to this `KeyPair` can only be downloaded once. So there is after the creation of this private key no way to retrieve this key.
 
 1. Open the Amazon EC2 console at https://console.aws.amazon.com/ec2/.
-2. In the navigation pane, under **NETWORK & SECURITY**, choose **Key Pairs**.
+2. In the navigation pane, under **NETWORK & SECURITY**, choose **Key Pairs**. <br>
 `Note`: The navigation pane is on the left side of the Amazon
 EC2 console. If you do not see the pane, it might be minimized; choose the arrow to expand the pane.
 3. Choose **Create Key Pair**.
-4. Enter a name for the new key pair in the **Key pair name** field of the **Create Key Pair** dialog box, and then choose **Create**.
+4. Enter a name for the new key pair in the **Key pair name** field of the **Create Key Pair** dialog box, and then choose **Create**. <br>
 `Note`: for this workshop it would be best to identify each resource with a **ttn** prefix. It would make life easier in cleaning your
 environment after the workshop. So **set as Key pair name** => `ttn-workshop-key-pair`
 5. The private key file is automatically downloaded by your browser. The base file name is the name you specified as the name of your
@@ -111,7 +111,7 @@ key pair, and the file name extension is .pem. Save the private key file in a sa
 1. Open the Amazon CloudFormation console at https://console.aws.amazon.com/cloudformation/.
 2. Choose **Create Stack**
 3. In section **Choose a template** select **Upload a template to Amazon S3**
-4. Download the content of the [TTN CloudFormation template](ttn-cloudformation-template) file and upload it to S3 via **Choose File**.
+4. Download the content of the [TTN CloudFormation template](ttn-cloudformation-template) file and upload it to S3 via **Choose File**. <br>
 `Note`: The best way to download the content is to open the file. Select **Raw** and copy the content in a new created file or with some
 browsers one can select the shown raw page content, right mouse button and do a **save as**.
 5. Choose **Next**
@@ -136,7 +136,7 @@ Follow the progress of the Stack creation. This might take several minutes.
 
 ### 4. Check the EC2 Created Instance
 1. Open the Amazon EC2 console at https://console.aws.amazon.com/ec2/.
-2. In the navigation pane, under **INSTANCES**, choose **Instance**.
+2. In the navigation pane, under **INSTANCES**, choose **Instance**. <br>
 `Note`: The navigation pane is on the left side of the Amazon
 EC2 console. If you do not see the pane, it might be minimized; choose the arrow to expand the pane.
 
@@ -151,7 +151,7 @@ is loaded with title **The Things Network Integration**.
 
 ### 6. Check the TTN Application Metrics via CloudWatch
 1. Open the Amazon CloudWatch console at https://console.aws.amazon.com/cloudwatch/
-2. In the navigation pane, choose **Metrics**
+2. In the navigation pane, choose **Metrics** <br>
 `Note`: The navigation pane is on the left side of the Amazon CloudWatch console.
 If you do not see the pane, it might be minimized; choose the arrow to expand the pane.
 3. Under **Custom Namespaces** choose **TheThingsNetwork/Integration**
@@ -229,7 +229,7 @@ which will be used via the bi tool `QuickSight`.
 
 ### 1. Create AWS Kinesis Firehose Delivery Stream
 1. Open the Amazon Kinesis console at https://console.aws.amazon.com/kinesis/
-`Note`: If you don't have a Kinesis configuration yet, choose **Get Started** to continue.
+`Note`: If you don't have a Kinesis configuration yet, choose **Get Started** to continue. <br>
 2. Choose **Create delivery stream**
 3. **Delivery stream name** => `ttn-kinesis-delivery-stream`
 4. **Source** => `Direct PUT or other sources`
@@ -252,14 +252,16 @@ which will be used via the bi tool `QuickSight`.
 21. **Select destination**
 22. **Destination** => `Amazon S3`
 21. **S3 bucket** choose **Create new**
-22. **S3 bucket name** => `ttn-workshop-data`
+22. **S3 bucket name** => `ttn-workshop-data-<unique-id>` <br>
+`Note`: An S3 bucket must be globaly unique
 23. Choose **Create S3 bucket**
 24. Notice that the create S3 bucket is automatically selected as the **S3 bucket**
-25. **Prefix** => `iot-to-bi/`
+25. **Prefix** => `iot-to-bi/` <br>
 `Note`: It is very important to add an ending **/**
 26. **Source record S3 backup** => `Enabled`. This is were you configure that the raw ingested data set should be stored on S3 as well.
 27. **Backup S3 bucket** choose **Create new**
-28. **S3 bucket name** => `ttn-workshop-raw-data`
+28. **S3 bucket name** => `ttn-workshop-raw-data-<unique-id>` <br>
+`Note`: An S3 bucket must be globaly unique
 29. Choose **Create S3 bucket**
 30. Notice that the create S3 bucket is automatically selected as the **Backup S3 bucket**
 31. **Prefix** => keep the default (don't change)
@@ -298,6 +300,18 @@ From the moment one should see data being stored on S3. (This is done in badges 
 the Kinesis Firehose S3 buffer conditions).
 
 ### 3. Athena
-TBD
+1. Open AWS Athena in the AWS Management Console: https://console.aws.amazon.com/athena/
+2. Makesure the `default` database is selected in the left column under **DATABASE**
+3. In the right panel in the code section, copy-paste the code from our [Athena create table statement](athena-create-table.sql)
+4. Adapte the SQL syntax for the **LOCATION** part to select your proper **S3 bucket**
+5. Choose **Run Query**
+6. In the left panel under **TABLES** a new table should be seen with the name `ttn_iot_flat_data`
+7. In the right panel in the code section type
+```
+select * from ttn_iot_flat_data
+```
+8. Choose **Run Query**
+9. One should see in the **Results** tab a list of records corresponding the data set on S3
+
 ### 4. QuickSight
 TBD
