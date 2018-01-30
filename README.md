@@ -47,12 +47,12 @@ ad-hoc analysis, and quickly get business insights from your data
 We will be using various code snippets during the workshop, which you can simply copy-paste from this repo.  
 
 [TTN CloudFormation template](ttn-cloudformation-template): We made a small change to the default AWS CloudFormation template
-provided by The Things Network. Therefore you are advised to use this template during the workshop.
+provided by The Things Network. Therefore you are advised to use this template during the workshop. <br>
 [Lambda to SNS notification](lambda-sns.js): We'll use this Javascript snippet for an AWS Lambda function. It will send out a
-notification to your email inbox via SNS when it detects movement at night.
+notification to your email inbox via SNS when it detects movement at night. <br>
 [Lambda to flatten json](lambda-flatten-json-kinesis-records.js): We'll use this Javascript snippet for an AWS Lambda function.
-It will take multiple records from a Kinesis stream and transform the json message of the TTN Node to a flat json with only the fields we require.
-[Lambda test record](lambda-test-record.json): You can use this sample Kinesis record to test your "flatten json" lambda.  
+It will take multiple records from a Kinesis stream and transform the json message of the TTN Node to a flat json with only the fields we require. <br>
+[Lambda test record](lambda-test-record.json): You can use this sample Kinesis record to test your "flatten json" lambda. <br>
 [Athena create table statement](athena-create-table.sql): We'll use this "create table" statement to create a table in Athena,
 which maps on the data we stored in S3.
 
