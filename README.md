@@ -309,10 +309,48 @@ the Kinesis Firehose S3 buffer conditions).
 7. In the right panel in the code section type
 ```
 select * from ttn_iot_flat_data
-select * from ttn_iot_flat_data order by time
 ```
 8. Choose **Run Query**
 9. One should see in the **Results** tab a list of records corresponding the data set on S3
 
 ### 4. QuickSight
-TBD
+1. Open AWS QuickSight in the QuickSight Console: https://quicksight.aws.amazon.com/
+2. Choose **Sign up for QuickSight** <br>
+`Note`: QuickSight is not a default supported service and one has to subscribe for it to activate the service on their
+AWS Account.
+3. Select the **Standard** Edition and choose **Continue**
+4. **QuickSight account name** => `ttn-quick-sight-account`
+5. **Notification email address** => `your account owners email address might be prefered`
+6. **QuickSight capacity region** => `US East (N.Virgina)` <br>
+`Note`: We have noticed that this service is not fully supported in other regions
+7. Select **Amazon Athena**
+8. Select **Amazon S3**
+9. Select **S3 buckets linked to QuickSight account**
+10. Select the S3 bucket **ttn-workshop-data-<unique-id>**
+11. Choose **Select buckets**
+12. Choose **Finish**
+
+Now your QuickSight account is generated. After the creation of the account choose **Go to Amazon QuickSight**
+
+13. Choose **Manage data** on the top right side
+14. Choose **New data set** on the top left
+15. Choose **Athena**
+16. **Data source name** => `ttn-flat-iot-athena-data`
+17. Choose **Create data source**
+18. **Database: contain sets of tables** => `default` from dropdown
+19. **Tables: contain the data you can visualize** => `ttn_iot_flat_data` select the radio button
+20. Choose **Select**
+21. **Finish data set creation** => select **Directly query your data**
+22. Choose **Visualize**
+
+Before one can use the time one has to modify the data type with QuickSight.
+
+23. Select **Visualize** from the most left column
+24. **Fields list** select `Edit analysis data sets` from the drop down where **ttn_iot_flat_data** is shown
+25. Choose **Edit** for `ttn_iot_flat_data`
+26. In the column **time** select the **String** type and select **Date** type
+27. Specify the following time format **YYYY-MM-DD HH:mm:ss**
+28. Choose Update
+
+Now the data set is ready to be used and one can start creating QuickSight visuals.
+

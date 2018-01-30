@@ -2,7 +2,7 @@ CREATE EXTERNAL TABLE ttn_iot_flat_data (
     battery int,
     light int,
     temperature float,
-    time timestamp)
+    time string)
 ROW FORMAT  serde 'org.apache.hive.hcatalog.data.JsonSerDe'
 with serdeproperties( 'ignore.malformed.json' = 'true')
 LOCATION 's3://ttn-workshop-data-<unique-id>/iot-to-bi/'
