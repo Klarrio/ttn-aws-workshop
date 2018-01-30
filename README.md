@@ -176,6 +176,11 @@ The only thing that needs to be checked is if data from the ThingNode is coming 
 5. click on the "Subscribe to topic" button. When you interact with your Things Node (by moving with it, clicking the button, etc), you should see your messages in AWS IoT.
 
 ## SNS notification flow
+
+Within this flow we will illustrate how one can send a notification to an email account based on a certain condition.
+The condition is that when the ThingsNode send a msg based on a `motion` event and the light sensor indicates it is dark
+(light sensor value < 35) it will trigger a SNS notification.
+
 ### 1. Setup Simple Notification Service
 Now we'll setup an SNS topic and subscription, to send out the notifications.
 
