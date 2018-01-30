@@ -170,10 +170,12 @@ The only thing that needs to be checked is if data from the ThingNode is coming 
 ### 7. Verify the IoT Data of Your Things Node in AWS IoT.
 
 1. open AWS IoT in the AWS Management Console: https://console.aws.amazon.com/iot/home
-2. in the menu on the left, go to Manage -> Things. Here you should see your TTN things now.
-3. in the menu on the left, go to Test. Here we'll try to subscribe on the MQTT messages published by your TTN Node.
-4. in the "subscription topic" field, enter `<ttn-app-name>/devices/<ttn-node-name>/up`, were you'll have to replace the placeholders with their actual values.
-5. click on the "Subscribe to topic" button. When you interact with your Things Node (by moving with it, clicking the button, etc), you should see your messages in AWS IoT.
+2. in the menu on the left, go to **Manage** -> **Things**. Here you should see your TTN things now.
+3. in the menu on the left, go to **Test**. Here we'll try to subscribe on the MQTT messages published by your TTN Node.
+4. in the **subscription topic** field, enter `<ttn-app-name>/devices/<ttn-node-name>/up`, were you'll have to replace the placeholders
+with their actual values.
+5. click on the **Subscribe to topic** button. When you interact with your Things Node (by moving with it, clicking the button, etc), you
+should see your messages in AWS IoT.
 
 ## SNS notification flow
 
@@ -185,11 +187,11 @@ The condition is that when the ThingsNode send a msg based on a `motion` event a
 Now we'll setup an SNS topic and subscription, to send out the notifications.
 
 1. Go to SNS in the AWS Management console: https://console.aws.amazon.com/sns/v2/home
-2. In the menu on the left, select "Topics". A SNS topic is a communication channel to send messages and subscribe to notifications.
-3. Click the "Create new topic" button, with name "ttn_alarm_notification". Confirm with "Create topic".
+2. In the menu on the left, select **Topics**. A SNS topic is a communication channel to send messages and subscribe to notifications.
+3. Click the **Create new topic** button, with name `ttn_alarm_notification`. Confirm with **Create topic**.
 4. Your SNS topic is now created. Note the ARN for your SNS topic, as you'll need this in the next step.
-5. In the menu on the left, select "Subscriptions".
-6. Click the "Create subscription" button. Enter the topic ARN, select "Email" as the protocol, fill in your email address as the endpoint and confirm with "create subscription".
+5. In the menu on the left, select **Subscriptions**.
+6. Click the **Create subscription** button. Enter the topic ARN, select **Email** as the protocol, fill in your email address as the endpoint and confirm with **create subscription**.
 7. SNS will now send you an email to confirm your SNS subscription. Confirm it by clicking on the link in this email.
 
 SNS is now setup to handle notifications.
@@ -199,20 +201,20 @@ We'll now setup a lambda function, which will send out a notification to your SN
 As a trigger for this lambda, we'll use AWS IoT, so that it gets triggered on every AWS IoT message of your Things Node.
 
 1. Go to the Lambda service in the AWS Management console: https://console.aws.amazon.com/lambda/home
-2. In the menu on the left, go to "Functions".
-3. Click the "Create function" button.
-4. Select "Author from scratch".
+2. In the menu on the left, go to **Functions**.
+3. Click the **Create function** button.
+4. Select **Author from scratch**.
 5. Fill in the basic information by providing a name to your lambda function and role.
-6. The role is used to provide your Lambda function with certain permissions. In the role dropdown, choose "create new role from template".
-7. In the "policy templates" dropdown, search for the "SNS publish policy".
-8. finalize your lambda function creation with clicking on the "Create function" button.
-9. Now your enter the main screen of your Lambda function. At the top you have the "Designer panel", at the bottom the "Function code" panel.
-10. In the Designer panel, click on the AWS IoT trigger in the left menu. The trigger will be added and you'll have to setup the MQTT topic to listen to.
-11. In the "Configure triggers" panel, select "Custom IoT rule" for the IoT type.
-12. From the Rule dropdown, select "create a new rule". Also enter a name for your rule.
+6. The role is used to provide your Lambda function with certain permissions. In the role dropdown, choose **create new role from template**.
+7. In the **policy templates** dropdown, search for the **SNS publish policy**.
+8. finalize your lambda function creation with clicking on the **Create function** button.
+9. Now your enter the main screen of your Lambda function. At the top you have the **Designer panel**, at the bottom the **Function code** panel.
+10. In the **Designer panel**, click on the **AWS IoT trigger** in the left menu. The trigger will be added and you'll have to setup the MQTT topic to listen to.
+11. In the **Configure triggers** panel, select **Custom IoT rule** for the IoT type.
+12. From the Rule dropdown, select **create a new rule**. Also enter a name for your rule.
 13. As the Rule query statement, enter: `select * from <ttn_app_name>/devices/<ttn_node_name>/up`
 14. Finally, in the code section, copy-paste the code from our [Lambda to SNS notification](lambda-sns.js) code snippet.
-15. Finalize the lambda by clicking on the "save" button at the top.
+15. Finalize the lambda by clicking on the **Save** button at the top.
 
 ### 3. Testing the flow
 Now, when you move the Things Node, while keeping it concealed from any light, an email should drop in your inbox.
@@ -226,7 +228,9 @@ we will create a table for the subset of the raw data on which query's can be pe
 which will be used via the bi tool `QuickSight`.
 
 ### 1. Create AWS Kinesis Firehose Delivery Stream
-TBD
+1. Open the Amazon Kinesis console at https://console.aws.amazon.com/kinesis/
+`Note`: If you don't have a Kinesis configuration yet, choose **Get Started** to continue.
+2.
 ### 2. Add Action to IoT Thing to Send Data to Kinesis.
 TBD
 ### 3. Athena
