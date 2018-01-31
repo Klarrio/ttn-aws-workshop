@@ -4,7 +4,7 @@ query the activity of your alarm and notify you when there's a burglar at your d
 
 ## AWS Architecture
 During the workshop, we will use multiple AWS services and combine them in a data workflow. The workflow will branch out into:  
-- a flow which will detect motion while it's dark and send out a SNS notification to your mailbox. (handson part of the workshop)
+- a flow which will detect motion while it's dark and send out a SNS notification to your mailbox. (hands-on part of the workshop)
 - a flow which will store the messages into S3's object storage (after a small transformation) and make the data queryable via
  AWS Athena. (will be demoed, the step by step log is also provided within this document).
 ![architecture](/assets/workshop.png)
@@ -64,37 +64,36 @@ This log will guide you through the steps of the workshop.
 ### 1. Setting up the TTN Integration with AWS
 During the workshop there will be one LoRa Gateway on which several Things Nodes will be connected via LoRa.
 
-The TTN Integration with AWS brings the LoRaWAN to AWS IoT which sync thing registry, sync thing shadows, act on uplink messages and
-send downlink messages. This integration runs in your AWS account and security context and can connect to The Things Network public
+The TTN Integration with AWS brings the LoRaWAN to AWS IoT, which syncs thing registry, syncs thing shadows, acts on uplink messages and
+sends downlink messages. This integration runs in your AWS account and security context and can connect to The Things Network public
 community network and private networks.
 
-To make this possible TTN has created a `Cloudformation` template which will setup the required:
+To make this possible TTN has created a `CloudFormation` template which will setup the required:
 * `IAM` (Identity and Access Management) roles
 * `EC2` node on which the actual application responsible for the synchronization between the two IoT platforms will be deployed.
 * `Elastic Beanstalk` configuration which is the TTN provided web application.
 * `CloudWatch` configuration that captures and reports the TTN web application metrics.
 * ...
 
-To deploy the `TTN CloudFormation` template one can use the Quick Start guide provided by The Things Network:
-https://www.thethingsnetwork.org/docs/applications/aws/quick-start.html However, you need to take one small change into account.
+To deploy the `TTN CloudFormation` template one can use the [Quick Start guide](https://www.thethingsnetwork.org/docs/applications/aws/quick-start.html) provided by The Things Network. However, you need to take one small change into account.
 Instead of using their S3 template URL link, you should use [our template](ttn-cloudformation-template), and upload it during the
 "select template" step of the guide.
 
-`Note:` Before following this quick start one has to create a secure `KeyPair` which is
+`Note:` Before following this quick start guide one has to create a secure `KeyPair` which is
 required during the `CloudFormation Stack` configuration. See section : `1.1 Create KeyPair` in this document.
 
 **OR**
 
-Use the provided abstract describtion below.
+Use the provided abstract description below.
 
 ### 2. Create KeyPair
-During the configuration of the CloudFormation stack one will be requisted to provide a `KeyPair`. Amazon EC2 uses public–key cryptography
+During the configuration of the CloudFormation stack one will be requested to provide a `KeyPair`. Amazon EC2 uses public–key cryptography
 to encrypt and decrypt login information. The public and private keys are known as a key pair. So the only purpose for this `KeyPair` is
-to have the private key which is required when one wants to login directly from there local development machine onto a `EC2 node`.
+to have the private key which is required when one wants to login directly from their local development machine onto an `EC2 node`.
 
-During this workshop there is no need to login to the `EC2 node` which is used to run the `TTN Elastic Beanstalk application`. But since a
-`EC2 node` is automatically created during the deployment of the `CloudFormation template` it is mandatory to provide one. The private key
-belonging to this `KeyPair` can only be downloaded once. So there is after the creation of this private key no way to retrieve this key.
+During this workshop there is no need to login to the `EC2 node` which is used to run the `TTN Elastic Beanstalk application`. But since an
+`EC2 node` is automatically created during the deployment of the `CloudFormation template`, it is mandatory to provide one. The private key
+belonging to this `KeyPair` can only be downloaded once, so make sure you store it in a safe place, since this will be the last time you'll be able to download it.
 
 1. Open the Amazon EC2 console at https://console.aws.amazon.com/ec2/.
 2. In the navigation pane, under **NETWORK & SECURITY**, choose **Key Pairs**. <br>
@@ -151,15 +150,14 @@ is loaded with title **The Things Network Integration**.
 
 ### 6. Check the TTN Application Metrics via CloudWatch
 1. Open the Amazon CloudWatch console at https://console.aws.amazon.com/cloudwatch/
-2. In the navigation pane, choose **Metrics** <br>
-`Note`: The navigation pane is on the left side of the Amazon CloudWatch console.
-If you do not see the pane, it might be minimized; choose the arrow to expand the pane.
+2. In the navigation pane, choose **Metrics**  
+    `Note`: The navigation pane is on the left side of the Amazon CloudWatch console.If you do not see the pane, it might be minimized; choose the arrow to expand the pane.
 3. Under **Custom Namespaces** choose **TheThingsNetwork/Integration**
-4. Choose **AppId, DiscoveryServer**
+4. Choose **AppId, DiscoveryServer**  
+    If your device is not switched on the only metric count that we should see is for the metric **ThingsCreatedInAWS**.  
 
-If your device is not switched on the only metric count that we should see is for the metric **ThingsCreatedInAWS**.
-5. Choose in the menu tab **All metrics** the metric name **ThingsXreatedInAWS**
-6. Set in the menu tab **Graphed metrics** in the column **Statistic** to **Sum**.
+5. Choose in the menu tab **All metrics** the metric name **ThingsCreatedInAWS**
+6. In the menu tab **Graphed metrics**, set the **Statistic** column to **Sum**. 
 
 Notice that the Graph shows a count with value 1. So we can conclude that once you've got the integration up-and-running,
 it will automatically sync the devices of The Things Network to AWS IoT
@@ -180,7 +178,7 @@ should see your messages in AWS IoT.
 ## SNS notification flow
 
 Within this flow we will illustrate how one can send a notification to an email account based on a certain condition.
-The condition is that when the ThingsNode send a msg based on a `motion` event and the light sensor indicates it is dark
+The condition is that when the ThingsNode sends a message based on a `motion` event and the light sensor indicates it is dark
 (light sensor value < 35) it will trigger a SNS notification.
 
 ### 1. Setup Simple Notification Service
@@ -222,13 +220,13 @@ Now, when you move the Things Node, while keeping it concealed from any light, a
 ## Store, Query and Dashboard flow
 
 Within this flow we will illustrate how one can store all the received data coming from the ThingsNode to `S3` (both the raw data set and
-a flattend json with a subset of the raw data set). We make use of the `Kinesis` to compact the incomming data sets and to write
-them to `S3`, to modify the incoming raw data sets to a flattend json we will make use of a `Lambda` function. With the AWS service `Athena`
-we will create a table for the subset of the raw data on which query's can be performed on the flattend json data sets stored on `S3` and
-which will be used via the bi tool `QuickSight`.
+a flattened json with a subset of the raw data set). We make use of `Kinesis` to compact the incoming data sets and to write
+them to `S3`, to modify the incoming raw data sets to a flattened json we will make use of a `Lambda` function. With the AWS `Athena` service
+we will create a table for the subset of the raw data on which queries can be performed on the flattened json data sets stored on `S3` and
+which will be used via the BI tool `QuickSight`.
 
 ### 1. Create AWS Kinesis Firehose Delivery Stream
-1. Open the Amazon Kinesis console at https://console.aws.amazon.com/kinesis/
+1. Open the Amazon Kinesis console at https://console.aws.amazon.com/kinesis/  
 `Note`: If you don't have a Kinesis configuration yet, choose **Get Started** to continue. <br>
 2. Choose **Create delivery stream**
 3. **Delivery stream name** => `ttn-kinesis-delivery-stream`
@@ -253,7 +251,7 @@ which will be used via the bi tool `QuickSight`.
 22. **Destination** => `Amazon S3`
 21. **S3 bucket** choose **Create new**
 22. **S3 bucket name** => `ttn-workshop-data-<unique-id>` <br>
-`Note`: An S3 bucket must be globaly unique
+`Note`: An S3 bucket must be globally unique
 23. Choose **Create S3 bucket**
 24. Notice that the create S3 bucket is automatically selected as the **S3 bucket**
 25. **Prefix** => `iot-to-bi/` <br>
@@ -261,7 +259,7 @@ which will be used via the bi tool `QuickSight`.
 26. **Source record S3 backup** => `Enabled`. This is were you configure that the raw ingested data set should be stored on S3 as well.
 27. **Backup S3 bucket** choose **Create new**
 28. **S3 bucket name** => `ttn-workshop-raw-data-<unique-id>` <br>
-`Note`: An S3 bucket must be globaly unique
+`Note`: An S3 bucket must be globally unique
 29. Choose **Create S3 bucket**
 30. Notice that the create S3 bucket is automatically selected as the **Backup S3 bucket**
 31. **Prefix** => keep the default (don't change)
@@ -296,14 +294,14 @@ which will be used via the bi tool `QuickSight`.
 17. Choose **Add action**
 18. Choose **Create rule**
 
-From the moment one should see data being stored on S3. (This is done in badges as configured with
+From the moment one should see data being stored on S3. (This is done in batches as configured with
 the Kinesis Firehose S3 buffer conditions).
 
 ### 3. Athena
 1. Open AWS Athena in the AWS Management Console: https://console.aws.amazon.com/athena/
-2. Makesure the `default` database is selected in the left column under **DATABASE**
+2. Make sure the `default` database is selected in the left column under **DATABASE**
 3. In the right panel in the code section, copy-paste the code from our [Athena create table statement](athena-create-table.sql)
-4. Adapte the SQL syntax for the **LOCATION** part to select your proper **S3 bucket**
+4. Adapt the SQL syntax for the **LOCATION** part to select your proper **S3 bucket**
 5. Choose **Run Query**
 6. In the left panel under **TABLES** a new table should be seen with the name `ttn_iot_flat_data`
 7. In the right panel in the code section type
@@ -311,7 +309,7 @@ the Kinesis Firehose S3 buffer conditions).
 select * from ttn_iot_flat_data
 ```
 8. Choose **Run Query**
-9. One should see in the **Results** tab a list of records corresponding the data set on S3
+9. One should see in the **Results** tab a list of records corresponding to the data set on S3
 
 ### 4. QuickSight
 1. Open AWS QuickSight in the QuickSight Console: https://quicksight.aws.amazon.com/
@@ -320,7 +318,7 @@ select * from ttn_iot_flat_data
 AWS Account.
 3. Select the **Standard** Edition and choose **Continue**
 4. **QuickSight account name** => `ttn-quick-sight-account`
-5. **Notification email address** => `your account owners email address might be prefered`
+5. **Notification email address** => `your account owners email address might be preferred`
 6. **QuickSight capacity region** => `US East (N.Virgina)` <br>
 `Note`: We have noticed that this service is not fully supported in other regions
 7. Select **Amazon Athena**
@@ -343,7 +341,7 @@ Now your QuickSight account is generated. After the creation of the account choo
 21. **Finish data set creation** => select **Directly query your data**
 22. Choose **Visualize**
 
-Before one can use the time one has to modify the data type with QuickSight.
+Before one can use the time one has to modify the data type within the QuickSight data set.
 
 23. Select **Visualize** from the most left column
 24. **Fields list** select `Edit analysis data sets` from the drop down where **ttn_iot_flat_data** is shown
